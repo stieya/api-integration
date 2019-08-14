@@ -101,7 +101,7 @@ func (a *APIIntegration) generateHeaders(req *http.Request) {
 		req.Header.Set(key, value)
 	}
 	if a.IsLocalAPI {
-		req.Header.Set("Authorization", fmt.Sprintf("token = %s", a.Token, a.Token))
+		req.Header.Set("Authorization", fmt.Sprintf("token = %s", a.Token))
 	}
 }
 
