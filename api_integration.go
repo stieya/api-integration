@@ -12,6 +12,9 @@ import (
 	"time"
 
 	"github.com/spartaut/activity"
+
+	"github.com/jmoiron/sqlx"
+	_ "github.com/lib/pq"
 )
 
 type APIIntegration struct {
@@ -28,7 +31,7 @@ type APIIntegration struct {
 	Logger      *log.Logger
 }
 
-func (a *APIIntegration) Send() (interface{}, error) {
+func (a *APIIntegration) Send(db *sqlx.DB) (interface{}, error) {
 	var resp interface{}
 
 	bodyRequest, err := json.Marshal(a.ObjReq)
@@ -51,10 +54,10 @@ func (a *APIIntegration) Send() (interface{}, error) {
 	a.generateHeaders(req)
 
 	// set api activity
-	apiActivity := activity.NewAPIActivity(a.UserID, a.Token, time.Now().Format("2006-01-02 15:04:05"), a.APIName, req)
+	apiActivity := activity.NewAPIActivityRequest(a.UserID, a.Token, time.Now().Format("2006-01-02 15:04:05"), a.APIName, req)
 
 	// post to idm with send apiactivity
-	response, err := apiActivity.clientDo(db, client, req)
+	response, err := apiActivity.ClientDo(db, client, req)
 	if err, ok := err.(net.Error); ok && err.Timeout() {
 		go a.writeLog("[" + a.APIName + "] - Failed Send - Error: " + err.Error())
 		log.Println("[", a.APIName, "] - Failed timeout - ", err.Error())
@@ -87,7 +90,7 @@ func (a *APIIntegration) Send() (interface{}, error) {
 	return resp, nil
 }
 
-func (a *APIIntegration) validateTimeout() {
+func (a *APIIntegration) validateTimeout() time.Duration {
 	defaultTimeout := 5
 	if a.Timeout == 0 {
 		return time.Duration(defaultTimeout)
