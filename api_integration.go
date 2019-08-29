@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -34,16 +35,9 @@ type APIIntegration struct {
 func (a *APIIntegration) Send(db *sqlx.DB) (interface{}, error) {
 	var resp interface{}
 
-	bodyRequest, err := json.Marshal(a.ObjReq)
-	if err != nil {
-		go a.writeLog("[" + a.APIName + "] - Failed Send - convert to json - Error: " + err.Error())
-		log.Println("[", a.APIName, "] - Failed convert to json - ", err.Error())
-		return nil, err
-	}
-
 	// generate http request
 	client := http.Client{Timeout: a.validateTimeout() * time.Second}
-	req, err := http.NewRequest(a.Method, a.Host, bytes.NewBuffer(bodyRequest))
+	req, err := http.NewRequest(a.Method, a.Host, a.generateBody())
 	if err != nil {
 		go a.writeLog("[" + a.APIName + "] - Failed Send - new request - Error: " + err.Error())
 		log.Println("[", a.APIName, "] - Failed new request - ", err.Error())
@@ -106,6 +100,16 @@ func (a *APIIntegration) generateHeaders(req *http.Request) {
 	if a.IsLocalAPI {
 		req.Header.Set("Authorization", fmt.Sprintf("token = %s", a.Token))
 	}
+}
+
+func (a *APIIntegration) generateBody() io.Reader {
+	if a.ObjReq == nil {
+		bodyRequest, err := json.Marshal(a.ObjReq)
+		if err == nil {
+			return bytes.NewBuffer(bodyRequest)
+		}
+	}
+	return nil
 }
 
 func (a *APIIntegration) writeLog(s string) {
