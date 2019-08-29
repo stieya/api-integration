@@ -103,7 +103,7 @@ func (a *APIIntegration) generateHeaders(req *http.Request) {
 }
 
 func (a *APIIntegration) generateBody() io.Reader {
-	if a.ObjReq == nil {
+	if a.ObjReq != nil {
 		bodyRequest, err := json.Marshal(a.ObjReq)
 		if err == nil {
 			return bytes.NewBuffer(bodyRequest)
