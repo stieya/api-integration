@@ -12,7 +12,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/spartaut/activity"
+	"github.com/stieya/activity"
 )
 
 type APIIntegration struct {
