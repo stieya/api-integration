@@ -1,6 +1,7 @@
 package activity
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -32,15 +33,25 @@ func (a *APIActivityRequest) toModel() apiActivity {
 	req, errReq := formatRequest(a.Request)
 	resp, errResp := formatResponse(a.response)
 
+	var errReqStr string
+	if errReq != nil {
+		errReqStr = errReq.Error()
+	}
+
+	var errRespStr string
+	if errResp != nil {
+		errRespStr = errReq.Error()
+	}
+
 	return apiActivity{
 		token:         a.Token,
 		userID:        a.UserID,
 		date:          date,
 		apiName:       a.APIName,
 		request:       string(req),
-		errorRequest:  errReq.Error(),
+		errorRequest:  errReqStr,
 		response:      string(resp),
-		errorResponse: errResp.Error(),
+		errorResponse: errRespStr,
 		createdBy:     a.UserID,
 		createdAt:     time.Now(),
 	}
@@ -121,9 +132,8 @@ func (a *APIActivityRequest) validate(db interface{}) error {
 	if err != nil {
 		return err
 	}
-	err = checkRequired("request", ToString(a.Request))
-	if err != nil {
-		return err
+	if a.Request == nil {
+		return errors.New("request must not be empty")
 	}
 	_, err = time.Parse(layoutTime, a.Date)
 	if err != nil {
