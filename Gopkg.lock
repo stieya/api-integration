@@ -26,11 +26,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:e378c2f79657789b04aaa365f7977bebebd2248ac69734101b3830de2209e4a4"
+  digest = "1:e3e125be78780350c5db7bd07a36b6d79338847c59105f92e82d2752339dbe25"
   name = "github.com/stieya/activity"
   packages = ["."]
   pruneopts = "UT"
-  revision = "437f47acb94e6d80642786e5e9decfd055a4e3a2"
+  revision = "c52695406fad4c900c86a4b01f8557c193a68d14"
 
 [solve-meta]
   analyzer-name = "dep"
