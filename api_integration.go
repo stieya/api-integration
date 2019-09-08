@@ -29,9 +29,7 @@ type APIIntegration struct {
 	Logger      *log.Logger
 }
 
-func (a *APIIntegration) Send(db interface{}) (interface{}, error) {
-	var resp interface{}
-
+func (a *APIIntegration) Send(db interface{}) ([]byte, error) {
 	// generate http request
 	client := http.Client{Timeout: a.validateTimeout() * time.Second}
 	req, err := http.NewRequest(a.Method, a.Host, a.generateBody())
@@ -71,14 +69,14 @@ func (a *APIIntegration) Send(db interface{}) (interface{}, error) {
 	// close response
 	response.Body.Close()
 
-	err = json.Unmarshal(body, &resp)
-	if err != nil {
-		go a.writeLog("[" + a.APICode + "] - Failed Send - unmarshal response body - Error: " + err.Error())
-		log.Println("[", a.APICode, "] - Failed unmarshal response body - Error: ", err.Error())
-		return nil, err
-	}
+	// err = json.Unmarshal(body, &resp)
+	// if err != nil {
+	// 	go a.writeLog("[" + a.APICode + "] - Failed Send - unmarshal response body - Error: " + err.Error())
+	// 	log.Println("[", a.APICode, "] - Failed unmarshal response body - Error: ", err.Error())
+	// 	return nil, err
+	// }
 
-	return resp, nil
+	return body, nil
 }
 
 func (a *APIIntegration) validateTimeout() time.Duration {
