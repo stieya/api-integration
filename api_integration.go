@@ -47,6 +47,10 @@ func (a *APIIntegration) Send(db interface{}) ([]byte, error) {
 
 	// post to idm with send apiactivity
 	response, err := apiActivity.ClientDo(db, client, req)
+	defer func() {
+		response.Body.Close()
+	}()
+
 	if err, ok := err.(net.Error); ok && err.Timeout() {
 		go a.writeLog("[" + a.APICode + "] - Failed Send - Error: " + err.Error())
 		log.Println("[", a.APICode, "] - Failed timeout - ", err.Error())
@@ -56,6 +60,11 @@ func (a *APIIntegration) Send(db interface{}) ([]byte, error) {
 		go a.writeLog("[" + a.APICode + "] - Failed Send - post - Error: " + err.Error())
 		log.Println("[", a.APICode, "] - Failed post - ", err.Error())
 		return nil, err
+	}
+	if response.StatusCode == http.StatusForbidden {
+		go a.writeLog("[" + a.APICode + "] - Failed Send - read response body - Error: Forbidden")
+		log.Println("[", a.APICode, "] - Failed read response body - Forbidden")
+		return nil, errors.New("Forbidden")
 	}
 
 	// read response from idm
