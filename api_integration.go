@@ -75,9 +75,6 @@ func (a *APIIntegration) Send(db interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	// close response
-	response.Body.Close()
-
 	// err = json.Unmarshal(body, &resp)
 	// if err != nil {
 	// 	go a.writeLog("[" + a.APICode + "] - Failed Send - unmarshal response body - Error: " + err.Error())
